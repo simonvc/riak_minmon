@@ -1,0 +1,78 @@
+<html>
+  <head>
+    <title>siMONitoring for Riak 1.2</title>
+
+
+    <script type="text/JavaScript" src="http://code.jquery.com/jquery.js"></script>
+    <script type="text/JavaScript" > 
+
+      jQuery.extend({
+        putJSON: function( url, data, callback ){
+          return $.ajax({
+            type: 'put',
+            url: url,
+            processData: false,
+            data: data,
+            success: callback,
+            contentType: 'application/json',
+            dataType: 'json'
+          });
+        }
+      });
+      
+
+    function storeStats() {
+      var now = Math.floor(new Date().valueOf()/1000);
+
+      $.getJSON('/stats', function(data) {
+          console.log(data.cpu_avg1);
+          for (var key in data) {
+            $.putJSON('/riak/siMONitoring_recorded/'+key+':'+now, data[key]);
+            }
+          });
+
+      console.log("Stored stats for "+now);
+    }
+
+
+    storeStats();
+
+    function everyTenSeconds() {
+      storeStats();
+      setTimeout(everyTenSeconds, 10000);
+    }
+
+   everyTenSeconds();
+
+    
+    
+    
+    
+    
+    </script>
+  </head>
+  <body>
+    Somebody painted it jquery ;-)<br/>
+
+    On load<br/>
+    check that this bucket has allow_mults set to false.<br/>
+
+<h2>milestones</h2>
+
+<li>1/ can serve html out of riak directly 
+
+<li>2/ can use JS from this html to get /stats json and display
+
+<li>3/ can take 1 value from this /stats object and put it back into a second key
+
+<li>4/ I can get all the keys in a json object, and write them individually back to riak
+
+<li>5/ I can run a MR that returns a jplot array
+
+<li>6/ I can plot the array
+
+<li>7/ I can select which keys to graph
+
+<li>8/ I can select ranges of time to graph
+  </body>
+</html>
