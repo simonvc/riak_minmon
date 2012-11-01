@@ -6,6 +6,9 @@
     <script type="text/JavaScript" src="http://code.jquery.com/jquery.js"></script>
     <script type="text/JavaScript" > 
 
+
+
+
       jQuery.extend({
         putJSON: function( url, data, callback ){
           return $.ajax({
@@ -38,7 +41,9 @@
     storeStats();
 
     function everyTenSeconds() {
-      storeStats();
+      if ( $('input[name=recording]').is(':checked') ) {
+        storeStats();
+      }
       setTimeout(everyTenSeconds, 10000);
     }
 
@@ -57,22 +62,26 @@
     On load<br/>
     check that this bucket has allow_mults set to false.<br/>
 
+    <form name="recording_form">
+      <input type="checkbox" name="recording" value="Recording">Recording<br>
+    </form>
+
 <h2>milestones</h2>
 
-<li>1/ can serve html out of riak directly 
+<li>can serve html out of riak directly 
 
-<li>2/ can use JS from this html to get /stats json and display
+<li> can use JS from this html to get /stats json and display
 
-<li>3/ can take 1 value from this /stats object and put it back into a second key
+<li> can take 1 value from this /stats object and put it back into a second key
 
-<li>4/ I can get all the keys in a json object, and write them individually back to riak
+<li> I can get all the keys in a json object, and write them individually back to riak
+<li> I can turn recording off and on with a checkbox
+<li> I can run a MR that returns a jplot array
 
-<li>5/ I can run a MR that returns a jplot array
+<li> I can plot the array
 
-<li>6/ I can plot the array
+<li> I can select which keys to graph
 
-<li>7/ I can select which keys to graph
-
-<li>8/ I can select ranges of time to graph
+<li> I can select ranges of time to graph
   </body>
 </html>
