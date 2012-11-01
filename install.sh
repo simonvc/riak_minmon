@@ -2,4 +2,4 @@
 
 curl -X PUT 127.0.0.1:11098/riak/minmon/index \
   -H 'Content-Type: text/html' \
-  -d @./index.html
+  --data-binary @./index.html
