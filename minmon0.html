@@ -6,29 +6,29 @@
     <script type="text/JavaScript" src="http://code.jquery.com/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="/riak/minmon/jquery.jqplot.min.js"></script>
 
-    <script type="text/JavaScript" > 
-
-      jQuery.extend({
-        putJSON: function( url, data, callback ){
-          return $.ajax({
-            type: 'put',
-            url: url,
-            processData: false,
-            data: data,
-            success: callback,
-            contentType: 'application/json',
-            dataType: 'json'
-          });
-        }
-      });
-    </script>
 
   </head>
   <body>
-    Somebody painted it jquery ;-)<br/>
+    <center><h1>Your Cluster</h1></center>
 
-    On load<br/>
-    check that this bucket has allow_mults set to false.<br/>
+    <form name="recording_form">
+      <input type="checkbox" name="recording" value="Recording">Monitoring<br>
+    </form>
+
+
+    This is a <div id="cluster_size">?</div> node cluster. <br/><br/>
+    This node is connected to <div id="cluster_connected">?</div> other nodes are currently connected.<br/>
+    <br/>
+    <div>The other nodes in this cluster: </div>
+    <div id="cluster_links"></div><br/>
+
+    <div>This node has served </div><div id="node_gets"></div> since it was restarted.<br/>
+
+    A total of of <div id="node_gets_total"></div> gets have been served by the whole cluster.<br/>
+
+
+
+    <h2> CPU Usage of this Node</h2>
     <div id="chart1" style="height:300px; width:500px;"></div>
 
   <script type="text/JavaScript">
@@ -36,10 +36,6 @@
    arr.push(1);
    var plot1 = $.jqplot ('chart1', [arr]);
   </script>
-
-    <form name="recording_form">
-      <input type="checkbox" name="recording" value="Recording">Recording<br>
-    </form>
 
 <h2>milestones</h2>
 
@@ -62,6 +58,10 @@
             console.log("arr "+arr); 
             var plot1 = $.jqplot ('chart1', [arr]);
             plot1.replot();
+// update the node list
+            document.getElementById('cluster_links').innerHTML = data.ring_members;
+            document.getElementById('cluster_size').innerHTML = data.ring_members.length;
+            document.getElementById('cluster_connected').innerHTML = data.connected_nodes.length+1;
             } )
        } // end of if
    //console.log("about to start the everyFewSeconds timer");
