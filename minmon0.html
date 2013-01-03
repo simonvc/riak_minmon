@@ -1,0 +1,87 @@
+<html>
+  <head>
+    <title>simonvc's Minimal Monitoring tool for Riak 1.2</title>
+
+
+    <script type="text/JavaScript" src="http://code.jquery.com/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="/riak/minmon/jquery.jqplot.min.js"></script>
+
+    <script type="text/JavaScript" > 
+
+      jQuery.extend({
+        putJSON: function( url, data, callback ){
+          return $.ajax({
+            type: 'put',
+            url: url,
+            processData: false,
+            data: data,
+            success: callback,
+            contentType: 'application/json',
+            dataType: 'json'
+          });
+        }
+      });
+    </script>
+
+  </head>
+  <body>
+    Somebody painted it jquery ;-)<br/>
+
+    On load<br/>
+    check that this bucket has allow_mults set to false.<br/>
+    <div id="chart1" style="height:300px; width:500px;"></div>
+
+  <script type="text/JavaScript">
+   var arr = new Array;
+   arr.push(1);
+   var plot1 = $.jqplot ('chart1', [arr]);
+  </script>
+
+    <form name="recording_form">
+      <input type="checkbox" name="recording" value="Recording">Recording<br>
+    </form>
+
+<h2>milestones</h2>
+
+<li>can serve html out of riak directly 
+
+<li> can use JS from this html to get /stats json and display
+
+<li> can take 1 value from this /stats object and put it back into a second key
+
+<li> I can get all the keys in a json object, and write them individually back to riak
+
+<li> I can turn recording off and on with a checkbox
+
+<li> I can run a MR that returns a jplot array
+
+<li> I can plot the array
+
+<li> I can select which keys to graph
+
+<li> I can select ranges of time to graph
+<script type="text/JavaScript" >
+  console.log("hello world");
+  function everyFewSeconds() {
+      if ( $('input[name=recording]').is(':checked') ) {
+        $.getJSON('/stats', function(data) {
+            arr.push(data.cpu_avg1);
+            arr=arr.slice(-60)
+            console.log("arr "+arr); 
+            var plot1 = $.jqplot ('chart1', [arr]);
+            plot1.replot();
+            } )
+       } // end of if
+   //console.log("about to start the everyFewSeconds timer");
+   setTimeout(everyFewSeconds, 5000);
+    }
+ </script>
+
+ <script type="text/JavaScript">
+   everyFewSeconds();
+ </script>
+
+
+ 
+  </body>
+</html>
