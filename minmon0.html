@@ -9,7 +9,8 @@
 
   </head>
   <body>
-    <center><h1>Your Cluster</h1></center>
+    <center><h1>Your Riak Node</h1></center>
+    <center><h2><span id="nodename"></span></h2></center>
 
     <form name="recording_form">
       <input type="checkbox" name="recording" checked value="Recording">Updating Live<br>
@@ -26,20 +27,30 @@
     <h2>Current request per 60 seconds</h2>
     <span>Current requests rate is </span><span id="node_gets"></span> over the last 60 seconds.<br/><br/>
     <div id="requestschart1" style="height:300px; width:500px;"></div>
-    A total of of <span id="node_gets_total"></span> get requests have been served by this node since restart.<br/>
+    A total of of <span id="node_gets_total"></span> requests have been served by this node since restart.<br/>
 
 
 
     <h2> CPU Usage of this Node</h2>
     <div id="cpuchart1" style="height:300px; width:500px;"></div>
 
+
+    <h2>About your Data</h2>
+    <h3>Your data as seen in the last 60 seconds.</h3>
+    The mean object size seen recently is <span id="node_get_fsm_objsize_mean">0</span><br/>
+    The median object size seen recently is <span id="node_get_fsm_objsize_median">0</span><br/>
+    <table border=1><tr><td>95% of objects</td><td>99% of objects</td><td>100% of objects</td></tr>
+      <tr><td><span id="node_get_fsm_objsize_95">0</span></td>
+      <td><span id="node_get_fsm_objsize_99">0</span></td>
+      <td><span id="node_get_fsm_objsize_100">0</span></td></tr></table>
+
+
+
+    <h2>Timing information</h2>
+
   <script type="text/JavaScript">
    var arr = new Array;
    var rps = new Array;
-   arr.push(1);
-   var plot1 = $.jqplot ('cpuchart1', [arr]);
-   rps.push(1);
-   var plot1 = $.jqplot ('requestschart1', [rps]);
   </script>
 
 <h2>milestones</h2>
@@ -54,27 +65,59 @@
 <li> http://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable
 
 <script type="text/JavaScript" >
+  function getReadableFileSizeString(fileSizeInBytes) {
+
+      var i = -1;
+      var byteUnits = [' kB', ' MB', ' GB', ' TB', 'PB', 'EB', 'ZB', 'YB'];
+      do {
+          fileSizeInBytes = fileSizeInBytes / 1024;
+          i++;
+      } while (fileSizeInBytes > 1024);
+
+      return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i];
+  };
+
+
   console.log("hello world");
   function everyFewSeconds() {
       if ( $('input[name=recording]').is(':checked') ) {
+        now = new Date(Date.now());
         $.getJSON('/stats', function(data) {
+            // The CPU chart
             arr.push(data.cpu_avg1);
             arr=arr.slice(-60)
             var plot1 = $.jqplot ('cpuchart1', [arr]);
             plot1.replot();
+            // The Requests per second chart
             rps.push(data.node_gets);
             rps=rps.slice(-900) // 15 minutes
-            var requestsper60 = $.jqplot ('requestschart1', [rps]);
+            var requestsper60 = $.jqplot ('requestschart1', [rps], {
+              title: "Requests per minute",
+              series:[{renderer:$.jqplot.BarRenderer}],
+             }              
+              
+              );
             requestsper60.replot();
 
 // update the node list
             //$('#cluster_size').html(data.ring_members.length);
+            document.getElementById('nodename').innerHTML = data.nodename;
             document.getElementById('cluster_size').innerHTML = data.ring_members.length;
             document.getElementById('cluster_connected_size').innerHTML = data.connected_nodes.length+1;
             document.getElementById('ring_members').innerHTML = data.ring_members;
             document.getElementById('connected_nodes').innerHTML = data.connected_nodes;
             document.getElementById('node_gets').innerHTML = data.node_gets;
             document.getElementById('node_gets_total').innerHTML = data.node_gets_total;
+            //node_get_fsm_objsize_mean: 0,
+            document.getElementById('node_get_fsm_objsize_mean').innerHTML = getReadableFileSizeString(data.node_get_fsm_objsize_mean);
+            //node_get_fsm_objsize_median: 0,
+            document.getElementById('node_get_fsm_objsize_median').innerHTML = getReadableFileSizeString(data.node_get_fsm_objsize_median);
+            //node_get_fsm_objsize_95: 0,
+            document.getElementById('node_get_fsm_objsize_95').innerHTML = getReadableFileSizeString(data.node_get_fsm_objsize_95);
+            //node_get_fsm_objsize_99: 0,
+            document.getElementById('node_get_fsm_objsize_99').innerHTML = getReadableFileSizeString(data.node_get_fsm_objsize_99);
+            //node_get_fsm_objsize_100: 0,
+            document.getElementById('node_get_fsm_objsize_100').innerHTML = getReadableFileSizeString(data.node_get_fsm_objsize_100);
             } )
        } // end of if
    //console.log("about to start the everyFewSeconds timer");
