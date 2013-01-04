@@ -12,29 +12,34 @@
     <center><h1>Your Cluster</h1></center>
 
     <form name="recording_form">
-      <input type="checkbox" name="recording" value="Recording">Monitoring<br>
+      <input type="checkbox" name="recording" checked value="Recording">Updating Live<br>
     </form>
 
 
-    This is a <div id="cluster_size">?</div> node cluster. <br/><br/>
-    This node is connected to <div id="cluster_connected">?</div> other nodes are currently connected.<br/>
+    This is a <span  id="cluster_size">?</span> node cluster. <br/><br/>
+    Currently <span id="cluster_connected_size">?</span> other nodes are connected.<br/>
     <br/>
-    <div>The other nodes in this cluster: </div>
-    <div id="cluster_links"></div><br/>
+    <span>The other nodes in this cluster: </span> <span id="ring_members"></span><br/><br/>
+    <span>The other nodes in this cluster that are currently up are: </span> <span id="connected_nodes"></span><br/><br/>
+    <br/>
 
-    <div>This node has served </div><div id="node_gets"></div> since it was restarted.<br/>
-
-    A total of of <div id="node_gets_total"></div> gets have been served by the whole cluster.<br/>
+    <h2>Current request per 60 seconds</h2>
+    <span>Current requests rate is </span><span id="node_gets"></span> over the last 60 seconds.<br/><br/>
+    <div id="requestschart1" style="height:300px; width:500px;"></div>
+    A total of of <span id="node_gets_total"></span> get requests have been served by this node since restart.<br/>
 
 
 
     <h2> CPU Usage of this Node</h2>
-    <div id="chart1" style="height:300px; width:500px;"></div>
+    <div id="cpuchart1" style="height:300px; width:500px;"></div>
 
   <script type="text/JavaScript">
    var arr = new Array;
+   var rps = new Array;
    arr.push(1);
-   var plot1 = $.jqplot ('chart1', [arr]);
+   var plot1 = $.jqplot ('cpuchart1', [arr]);
+   rps.push(1);
+   var plot1 = $.jqplot ('requestschart1', [rps]);
   </script>
 
 <h2>milestones</h2>
@@ -55,13 +60,21 @@
         $.getJSON('/stats', function(data) {
             arr.push(data.cpu_avg1);
             arr=arr.slice(-60)
-            console.log("arr "+arr); 
-            var plot1 = $.jqplot ('chart1', [arr]);
+            var plot1 = $.jqplot ('cpuchart1', [arr]);
             plot1.replot();
+            rps.push(data.node_gets);
+            rps=rps.slice(-900) // 15 minutes
+            var requestsper60 = $.jqplot ('requestschart1', [rps]);
+            requestsper60.replot();
+
 // update the node list
-            document.getElementById('cluster_links').innerHTML = data.ring_members;
+            //$('#cluster_size').html(data.ring_members.length);
             document.getElementById('cluster_size').innerHTML = data.ring_members.length;
-            document.getElementById('cluster_connected').innerHTML = data.connected_nodes.length+1;
+            document.getElementById('cluster_connected_size').innerHTML = data.connected_nodes.length+1;
+            document.getElementById('ring_members').innerHTML = data.ring_members;
+            document.getElementById('connected_nodes').innerHTML = data.connected_nodes;
+            document.getElementById('node_gets').innerHTML = data.node_gets;
+            document.getElementById('node_gets_total').innerHTML = data.node_gets_total;
             } )
        } // end of if
    //console.log("about to start the everyFewSeconds timer");
