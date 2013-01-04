@@ -47,6 +47,22 @@
 
 
     <h2>Timing information</h2>
+    <br/>
+    The mean GET response times seen recently is <span id="node_get_fsm_time_mean">0</span><br/>
+    The median GET response times seen recently is <span id="node_get_fsm_time_median">0</span><br/>
+    <br/>
+    <table border=1><tr><td>95% of gets</td><td>99% of gets</td><td>100% of gets</td></tr>
+      <tr><td><span id="node_get_fsm_time_95">0</span></td>
+      <td><span id="node_get_fsm_time_99">0</span></td>
+      <td><span id="node_get_fsm_time_100">0</span></td></tr></table>
+  <br/>
+    The mean PUT response times seen recently is <span id="node_put_fsm_time_mean">0</span><br/>
+    The median PUT response times seen recently is <span id="node_put_fsm_time_median">0</span><br/>
+    <br/>
+    <table border=1><tr><td>95% of puts</td><td>99% of puts</td><td>100% of puts</td></tr>
+      <tr><td><span id="node_put_fsm_time_95">0</span></td>
+      <td><span id="node_put_fsm_time_99">0</span></td>
+      <td><span id="node_put_fsm_time_100">0</span></td></tr></table>
 
   <script type="text/JavaScript">
    var arr = new Array;
@@ -78,6 +94,18 @@
   };
 
 
+function getReadableTimeString (timeInMicroSeconds) {
+
+      var i = -1;
+      var timeUnits = [' milliseconds', ' seconds'];
+      do {
+          timeInMicroSeconds = timeInMicroSeconds / 1000;
+          i++;
+      } while (timeInMicroSeconds > 1000);
+
+      return Math.max(timeInMicroSeconds, 0.1).toFixed(1) + timeUnits[i];
+  };
+
   console.log("hello world");
   function everyFewSeconds() {
       if ( $('input[name=recording]').is(':checked') ) {
@@ -108,6 +136,8 @@
             document.getElementById('connected_nodes').innerHTML = data.connected_nodes;
             document.getElementById('node_gets').innerHTML = data.node_gets;
             document.getElementById('node_gets_total').innerHTML = data.node_gets_total;
+
+            //obj size section
             //node_get_fsm_objsize_mean: 0,
             document.getElementById('node_get_fsm_objsize_mean').innerHTML = getReadableFileSizeString(data.node_get_fsm_objsize_mean);
             //node_get_fsm_objsize_median: 0,
@@ -118,6 +148,37 @@
             document.getElementById('node_get_fsm_objsize_99').innerHTML = getReadableFileSizeString(data.node_get_fsm_objsize_99);
             //node_get_fsm_objsize_100: 0,
             document.getElementById('node_get_fsm_objsize_100').innerHTML = getReadableFileSizeString(data.node_get_fsm_objsize_100);
+            
+            
+            //time section
+            //node_get_fsm_time_mean: 0,
+            document.getElementById('node_get_fsm_time_mean').innerHTML = getReadableTimeString(data.node_get_fsm_time_mean);
+            //node_get_fsm_time_median: 0,
+            document.getElementById('node_get_fsm_time_median').innerHTML = getReadableTimeString(data.node_get_fsm_time_median);
+            //node_get_fsm_time_95: 0,
+            document.getElementById('node_get_fsm_time_95').innerHTML = getReadableTimeString(data.node_get_fsm_time_95);
+            //node_get_fsm_time_99: 0,
+            document.getElementById('node_get_fsm_time_99').innerHTML = getReadableTimeString(data.node_get_fsm_time_99);
+            //node_get_fsm_time_100: 0,
+            document.getElementById('node_get_fsm_time_100').innerHTML = getReadableTimeString(data.node_get_fsm_time_100);
+            
+            
+            //node_put_fsm_time_mean: 0,
+            //node_put_fsm_time_median: 0,
+            //node_put_fsm_time_95: 0,
+            //node_put_fsm_time_99: 0,
+            //node_put_fsm_time_100: 0,
+            //node_put_fsm_time_mean: 0,
+            document.putElementById('node_put_fsm_time_mean').innerHTML = getReadableTimeString(data.node_put_fsm_time_mean);
+            //node_put_fsm_time_median: 0,
+            document.putElementById('node_put_fsm_time_median').innerHTML = getReadableTimeString(data.node_put_fsm_time_median);
+            //node_put_fsm_time_95: 0,
+            document.putElementById('node_put_fsm_time_95').innerHTML = getReadableTimeString(data.node_put_fsm_time_95);
+            //node_put_fsm_time_99: 0,
+            document.putElementById('node_put_fsm_time_99').innerHTML = getReadableTimeString(data.node_put_fsm_time_99);
+            //node_put_fsm_time_100: 0,
+            document.putElementById('node_put_fsm_time_100').innerHTML = getReadableTimeString(data.node_put_fsm_time_100);
+
             } )
        } // end of if
    //console.log("about to start the everyFewSeconds timer");
